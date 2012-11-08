@@ -36,6 +36,7 @@ import java.util.Set;
 
 /**
  * Header row has keys, default delimiter is comma
+ * Expect data file continuous - to not have empty lines till reach end of data
  * Not thread safe
  * @author bridgem
  */
