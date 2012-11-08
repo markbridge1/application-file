@@ -77,10 +77,11 @@ public class KeyedDelimitedFileRead {
     }
     
     public HashMap<String, String> nextLine() {
-        HashMap<String, String> retVal = new HashMap<>();
+        HashMap<String, String> retVal = null;
         
         Scanner lineScanner = getLineScanner();
         if(lineScanner != null) {
+            retVal = new HashMap<>();
             int keyIndex = 0;
             while(lineScanner.hasNext()) {
                 retVal.put(keyRow.get(keyIndex), lineScanner.next());
