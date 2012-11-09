@@ -44,6 +44,7 @@ public class KeyedDelimitedFileRead {
     
     private ArrayList<String> keyRow = new ArrayList<>();
     private Scanner fileScanner;
+    private Path filePath;
     private String delimiter = ",";
     
     public KeyedDelimitedFileRead() {
@@ -54,12 +55,24 @@ public class KeyedDelimitedFileRead {
     }
     
     public KeyedDelimitedFileRead(Path path, String delimiter) {
+        this.filePath = path;
+        reset(delimiter);
+    }
+    
+    public final void reset(String delimiter) {
+        
+        try {
+            fileScanner.close();
+        } catch(Exception ex) {
+            
+        }
+        
         if(delimiter != null) {
             this.delimiter = delimiter;
         }
         
         try {
-            fileScanner = new Scanner(path);
+            fileScanner = new Scanner(filePath);
             Scanner lineScanner = getLineScanner();
             if(lineScanner != null) {
                 Set<String>keySet = new HashSet<>();
@@ -94,6 +107,37 @@ public class KeyedDelimitedFileRead {
     
     public String[] getKeyRow() {
         return keyRow.toArray(new String[0]);
+    }
+    
+    /**
+     * Will reset the state of the class and load all data in the file in memory
+     * keyed by the id field
+     * @param idField the id field to key the return by
+     * @return id to 'map of data' map
+     * @throws IllegalArgumentException if not a true id field
+     */
+    public HashMap<String, HashMap<String, String>> allDataById(String idField) 
+    throws IllegalArgumentException {
+        
+        HashMap<String, HashMap<String, String>> retVal = new HashMap<>();
+
+        reset(delimiter);
+        HashMap<String, String> dataLine = nextLine();
+        if(dataLine != null) {
+            while(true) {
+                String id = dataLine.get(idField);
+                HashMap<String, String> prev = retVal.put(id, dataLine);
+                if(prev != null) {
+                    throw new IllegalArgumentException("id: " + id + 
+                            " overwrote a previous entry, not unique.  Stopping");
+                }
+                dataLine = nextLine();
+                if(dataLine == null) {
+                    break;
+                }
+            }
+        }
+        return retVal;
     }
     
     private Scanner getLineScanner() {
