@@ -92,6 +92,10 @@ public class KeyedDelimitedFileRead {
         return retVal;
     }
     
+    public String[] getKeyRow() {
+        return keyRow.toArray(new String[0]);
+    }
+    
     private Scanner getLineScanner() {
         Scanner retVal = null;
         try { 
