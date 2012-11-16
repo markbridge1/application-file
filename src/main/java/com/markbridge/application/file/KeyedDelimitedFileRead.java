@@ -81,7 +81,8 @@ public class KeyedDelimitedFileRead {
                     if(keySet.add(key)) {
                         keyRow.add(key);
                     } else {
-                        throw new RuntimeException("duplicate key found in file header");
+                        throw new RuntimeException("duplicate key found in file header: "
+                                + key);
                     }
                 }
             }
