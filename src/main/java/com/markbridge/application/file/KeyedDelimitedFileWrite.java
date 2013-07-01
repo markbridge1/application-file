@@ -74,7 +74,7 @@ public class KeyedDelimitedFileWrite {
      * 
      * @param key
      * @param elementL
-     * @return 
+     * @return this
      */
     public KeyedDelimitedFileWrite println(String key, ArrayList<String> elementL) {
         try { 
@@ -93,9 +93,32 @@ public class KeyedDelimitedFileWrite {
     }
     
     /**
+     * output a simple comment line with a '#' prefix followed by the set delimiter
+     * unless specify another prefix - or just the comment with no prefix if the 
+     * second (optional) parameter is set to null
+     * @param comment - the first parameter - the next (optional) parameter is a prefix override
+     * @return this
+     */
+    public KeyedDelimitedFileWrite println(String ... comment) {
+        String prefix = "#".concat(delimiter);
+        if(comment.length > 1) {
+            prefix = comment[1];
+        }
+        try {
+            if(prefix != null) {
+                out.append(prefix);
+            }
+            out.append(comment[0]).append(System.lineSeparator());
+        } catch (IOException ex) {
+            Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return this;
+    }
+    
+    /**
      * add element and delimiter - responsibility of user to ensure correct keying of element
      * @param element
-     * @return 
+     * @return this
      */
     public KeyedDelimitedFileWrite print(String element) {
         try {
@@ -108,20 +131,11 @@ public class KeyedDelimitedFileWrite {
     
     /**
      * add a platform dependent end of line
-     * @return 
+     * @return this
      */
     public KeyedDelimitedFileWrite endl() {
         try {
             out.append(System.lineSeparator());
-        } catch (IOException ex) {
-            Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return this;
-    }
-    
-    public KeyedDelimitedFileWrite debug(String comment) {
-        try {
-            out.append(comment).append(System.lineSeparator());
         } catch (IOException ex) {
             Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -138,8 +152,8 @@ public class KeyedDelimitedFileWrite {
     
     @Override
     protected void finalize() throws Throwable {
-        super.finalize();
         out.close();
+        super.finalize();
     }
     
     public static void main(String[] args) throws FileNotFoundException {
