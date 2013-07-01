@@ -40,8 +40,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Header row has keys, default delimiter is comma
- * Expect data file continuous - to not have empty lines till reach end of data
+ * Default delimiter is comma.  Set unique row headings if want to read with 
+ * KeyedDelimitedFileRead - note, this also expects data file continuous - to 
+ * not have empty lines till reach end of data.  Writes out in UTF-8.
  * Not thread safe
  * @author bridgem
  */
@@ -67,43 +68,64 @@ public class KeyedDelimitedFileWrite {
         this(Paths.get(fsFilePath), delimiter);
     }
     
-    public boolean writeLine(String key, ArrayList<String> elements) {
-        boolean retVal = false;
-        
+    /**
+     * If a keyed line doesn't exist this will add a line to the file keyed as
+     * given, with each element written out separated with the set delimiter
+     * 
+     * @param key
+     * @param elementL
+     * @return 
+     */
+    public KeyedDelimitedFileWrite println(String key, ArrayList<String> elementL) {
         try { 
             if(keyCheck.add(key)) {
                 out.append(key).append(delimiter);
-                for(String s : elements) {
+                for(String s : elementL) {
                     out.append(s).append(delimiter);
-                    retVal = true;
                 }
                 out.append(System.lineSeparator());
-                retVal = true;
             }
         } catch (IOException ex) {
+            Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return retVal;
+        return this;
     }
     
-    public boolean rawWriteElement(String element) {
-        boolean retVal = false;
+    /**
+     * add element and delimiter - responsibility of user to ensure correct keying of element
+     * @param element
+     * @return 
+     */
+    public KeyedDelimitedFileWrite print(String element) {
         try {
-            out.append(element).append(delimiter);;
-            retVal = true;
+            out.append(element).append(delimiter);
         } catch (IOException ex) {
+            Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return retVal;
+        return this;
     }
     
-    public boolean rawEndLine() {
-        boolean retVal = false;
+    /**
+     * add a platform dependent end of line
+     * @return 
+     */
+    public KeyedDelimitedFileWrite endl() {
         try {
             out.append(System.lineSeparator());
-            retVal = true;
         } catch (IOException ex) {
+            Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return retVal;
+        return this;
+    }
+    
+    public KeyedDelimitedFileWrite debug(String comment) {
+        try {
+            out.append(comment).append(System.lineSeparator());
+        } catch (IOException ex) {
+            Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return this;
     }
     
     public void close() {
@@ -128,12 +150,12 @@ public class KeyedDelimitedFileWrite {
         
         for(int i = 0; i < 10; i++) {
             list.add("" + 10);
-            writeout.rawWriteElement("" + i);
+            writeout.print("" + i);
         }
         
-        writeout.rawEndLine();
+        writeout.endl();
         
-        writeout.writeLine("1", list);
+        writeout.println("1", list);
         
         writeout.close();
     }
