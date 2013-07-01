@@ -95,7 +95,8 @@ public class KeyedDelimitedFileWrite {
     /**
      * output a simple comment line with a '#' prefix followed by the set delimiter
      * unless specify another prefix - or just the comment with no prefix if the 
-     * second (optional) parameter is set to null
+     * second (optional) parameter is set to an empty string or null (if null cast 
+     * it as a string as overload could apply to other methods above)
      * @param comment - the first parameter - the next (optional) parameter is a prefix override
      * @return this
      */
@@ -105,10 +106,23 @@ public class KeyedDelimitedFileWrite {
             prefix = comment[1];
         }
         try {
-            if(prefix != null) {
-                out.append(prefix);
+            if(prefix != null && ! prefix.isEmpty()) {
+                out.append(prefix).append(delimiter);
             }
             out.append(comment[0]).append(System.lineSeparator());
+        } catch (IOException ex) {
+            Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return this;
+    }
+    
+    /**
+     * add a (utf-8) platform specific end of line
+     * @return this
+     */
+    public KeyedDelimitedFileWrite println() {
+        try {
+            out.append(System.lineSeparator());
         } catch (IOException ex) {
             Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -123,19 +137,6 @@ public class KeyedDelimitedFileWrite {
     public KeyedDelimitedFileWrite print(String element) {
         try {
             out.append(element).append(delimiter);
-        } catch (IOException ex) {
-            Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return this;
-    }
-    
-    /**
-     * add a platform dependent end of line
-     * @return this
-     */
-    public KeyedDelimitedFileWrite endl() {
-        try {
-            out.append(System.lineSeparator());
         } catch (IOException ex) {
             Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -160,16 +161,22 @@ public class KeyedDelimitedFileWrite {
         
         KeyedDelimitedFileWrite writeout = new KeyedDelimitedFileWrite(Paths.get(".", "log"), "\t");
         
-        ArrayList<String> list = new ArrayList<String>();
-        
         for(int i = 0; i < 10; i++) {
-            list.add("" + 10);
             writeout.print("" + i);
         }
+        writeout.println();
         
-        writeout.endl();
+        ArrayList<String> list = new ArrayList<String>();
+        for(int i = 10; i > 0; i--) {
+            list.add("" + i);
+        }
+        writeout.println("key", list);
         
-        writeout.println("1", list);
+        writeout.println("comment with default prefix");
+        writeout.println("comment with '%' prefix", "%");
+        writeout.println("comment with no prefix", "");
+        writeout.println("comment with no prefix", (String) null);
+        
         
         writeout.close();
     }
