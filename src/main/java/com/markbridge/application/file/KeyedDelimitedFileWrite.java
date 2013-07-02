@@ -143,6 +143,14 @@ public class KeyedDelimitedFileWrite {
         return this;
     }
     
+    public void flush() {
+        try {
+            out.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(KeyedDelimitedFileWrite.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public void close() {
         try {
             out.close();
